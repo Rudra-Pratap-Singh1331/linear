@@ -2,17 +2,47 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import LinearLogo from "@/component/LinearLogo";
-
+import { useSupabase } from "@/app/providers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faShapes, faKeyboard } from "@fortawesome/free-solid-svg-icons";
 
 export default function FinalStep() {
   const router = useRouter();
+  const supabase = useSupabase();
 
-  const handleFinish = () => {
-    // Optionally mark onboarding as complete in DB here
-    router.push("/");
+  const handleFinish = async () => {
+    try {
+      // Fetch user's workspace
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push("/signup");
+        return;
+      }
+
+      const { data: memberships } = await supabase
+        .from("workspace_members")
+        .select("workspace_id")
+        .eq("user_id", user.id)
+        .limit(1);
+
+      if (memberships && memberships.length > 0) {
+        const { data: workspace } = await supabase
+          .from("workspaces")
+          .select("slug")
+          .eq("id", memberships[0].workspace_id)
+          .single();
+
+        if (workspace) {
+          router.push(`/${workspace.slug}/team/TES/active`);
+          return;
+        }
+      }
+
+      router.push("/");
+    } catch (error) {
+      console.error("Error in handleFinish:", error);
+      router.push("/");
+    }
   };
 
   return (

@@ -66,13 +66,12 @@ export default function WelcomePage() {
   };
 
   return (
-    <>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-white dark:bg-[#080808] text-foreground">
       {renderStep()}
       
-      {/* Pagination Dots (Optional, based on screenshot) */}
+      {/* Pagination Dots */}
       <div className="fixed bottom-[34px] flex gap-[20px] z-50">
         {Object.keys(STEPS).map((key) => {
-           // Provide a visual indicator of progress
            const stepNum = STEPS[key];
            const isActive = stepNum === currentStep;
            const isPrevious = stepNum < currentStep;
@@ -90,6 +89,6 @@ export default function WelcomePage() {
            );
         })}
       </div>
-    </>
+    </div>
   );
 }
