@@ -42,5 +42,5 @@ export default async function BacklogIssuesPage({ params }) {
     .eq("workspace_id", workspace.id)
     .eq("status", "todo");
 
-  return <IssuesBoard issues={issues || []} todoCount={todoCount || 0} />;
+  return <IssuesBoard issues={issues || []} todoCount={todoCount || 0} viewType="backlog" />;
 }

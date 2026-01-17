@@ -5,7 +5,7 @@ import { ChevronDown, ChevronRight, Plus, MoreHorizontal, Circle } from "lucide-
 import { cn } from "@/lib/cn";
 import IssueRow from "./IssueRow";
 
-export default function IssuesGroup({ title, count, issues = [] }) {
+export default function IssuesGroup({ title, count, issues = [], icon }) {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
@@ -19,7 +19,7 @@ export default function IssuesGroup({ title, count, issues = [] }) {
                 <ChevronDown size={14} className={cn("transition-transform text-zinc-600", !isOpen && "-rotate-90")} />
             </button>
             <div className="flex items-center gap-2.5">
-                <Circle size={14} className="text-zinc-500" strokeWidth={2.5} />
+                {icon || <Circle size={14} className="text-zinc-500" strokeWidth={2.5} />}
                 <div className="flex items-center gap-2">
                   <span className="text-[13px] font-semibold text-zinc-200">
                       {title}
