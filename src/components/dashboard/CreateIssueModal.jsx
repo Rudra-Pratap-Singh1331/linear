@@ -1,22 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { 
-  X, 
-  Maximize2, 
-  Minimize2, 
-  Circle, 
-  MoreHorizontal, 
-  Paperclip,
-  Plus,
-  User,
-  Tag,
-  ChevronRight,
-  Sparkles,
-  Calendar,
-  CircleDashed,
-  XCircle
-} from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { X, Maximize2, Minimize2, Calendar, Tag, User, ChevronRight, Check, Sparkles, Paperclip, MoreHorizontal, Circle, CircleDashed, XCircle, AlertCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
@@ -142,6 +127,10 @@ export default function CreateIssueModal({ isOpen, onClose, teamKey = "TES" }) {
   const [labelSearch, setLabelSearch] = useState("");
   const [createMore, setCreateMore] = useState(false);
   
+  // AI State
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  
   const modalRef = useRef(null);
   const moreRef = useRef(null);
   const dueDateRef = useRef(null);
@@ -219,6 +208,65 @@ export default function CreateIssueModal({ isOpen, onClose, teamKey = "TES" }) {
           console.error("Error creating issue:", err);
       } finally {
           setIsSubmitting(false);
+      }
+  };
+
+  const handleAiGenerate = async () => {
+      if (!aiPrompt.trim() || isGenerating) return;
+
+      setIsGenerating(true);
+      console.log("Starting AI generation with prompt:", aiPrompt);
+      try {
+          const res = await fetch('/api/ai/generate-issue', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ prompt: aiPrompt })
+          });
+
+          if (!res.ok) {
+              const errorText = await res.text();
+              console.error("API Error:", res.status, errorText);
+              throw new Error(`Failed to generate issue: ${res.status}`);
+          }
+
+          const data = await res.json();
+          console.log("AI Response Data:", data);
+
+
+          // Autofill fields
+          setTitle(data.title || "");
+          setDescription(data.description || "");
+          setStatus(data.status?.toLowerCase() === 'todo' ? 'todo' : 'todo'); // Always todo
+
+          // Map Priority
+          const priorityMap = {
+              "urgent": 1,
+              "high": 2,
+              "medium": 3,
+              "low": 4,
+              "no priority": 0
+          };
+          setPriority(priorityMap[data.priority?.toLowerCase()] ?? 0);
+
+          // Labels (take first if exists)
+          if (data.labels && data.labels.length > 0) {
+              setLabel(data.labels[0]);
+          }
+
+          // Due Date
+          if (data.dueDate) {
+              setDueDate(new Date(data.dueDate));
+          } else {
+             // Keep existing or empty if not provided
+          }
+
+          setIsAiPopupOpen(false);
+          setAiPrompt("");
+      } catch (err) {
+          console.error("AI Generation failed:", err);
+          // Optional: Show toast
+      } finally {
+          setIsGenerating(false);
       }
   };
 
@@ -723,7 +771,13 @@ export default function CreateIssueModal({ isOpen, onClose, teamKey = "TES" }) {
                     <textarea 
                         autoFocus
                         placeholder="e.g. As a user I want to be able to reset my password..."
-                        className="bg-zinc-900/50 rounded-xl p-4 text-[16px] text-zinc-200 placeholder-zinc-700 outline-none w-full border border-white/5 resize-none flex-1 focus:border-indigo-500/30 transition-colors"
+                        value={aiPrompt}
+                        onChange={(e) => setAiPrompt(e.target.value)}
+                        disabled={isGenerating}
+                        className={cn(
+                            "bg-zinc-900/50 rounded-xl p-4 text-[16px] text-zinc-200 placeholder-zinc-700 outline-none w-full border border-white/5 resize-none flex-1 focus:border-indigo-500/30 transition-colors",
+                            isGenerating && "opacity-50 cursor-not-allowed"
+                        )}
                     />
                 </div>
                 <div className="px-6 py-4 border-t border-white/5 flex justify-end gap-3 shrink-0">
@@ -733,8 +787,22 @@ export default function CreateIssueModal({ isOpen, onClose, teamKey = "TES" }) {
                     >
                         Cancel
                     </button>
-                    <button className="px-5 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 rounded-lg text-[14px] font-medium transition-colors border border-indigo-500/30 active:scale-95">
-                        Generate issue
+                    <button 
+                        onClick={handleAiGenerate}
+                        disabled={isGenerating || !aiPrompt.trim()}
+                        className={cn(
+                            "px-5 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 rounded-lg text-[14px] font-medium transition-colors border border-indigo-500/30 active:scale-95",
+                            (isGenerating || !aiPrompt.trim()) && "opacity-50 cursor-not-allowed"
+                        )}
+                    >
+                        {isGenerating ? (
+                            <div className="flex items-center gap-2">
+                                <Loader2 size={14} className="animate-spin" />
+                                <span>Generating...</span>
+                            </div>
+                        ) : (
+                            "Generate issue"
+                        )}
                     </button>
                 </div>
             </div>
