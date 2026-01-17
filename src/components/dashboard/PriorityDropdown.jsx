@@ -9,13 +9,13 @@ import {
 import { cn } from "@/lib/cn";
 
 // Custom icons to match Linear exactly
-const UrgentIcon = () => (
+export const UrgentIcon = () => (
     <div className="bg-[#f06543] rounded-[3px] p-0.5 flex items-center justify-center w-3.5 h-3.5 shrink-0">
         <span className="text-white text-[10px] font-bold leading-none">!</span>
     </div>
 );
 
-const HighPriorityIcon = () => (
+export const HighPriorityIcon = () => (
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-zinc-400 shrink-0">
         <rect x="2" y="10" width="3" height="4" rx="1" fill="currentColor" />
         <rect x="6.5" y="6" width="3" height="8" rx="1" fill="currentColor" />
@@ -23,7 +23,7 @@ const HighPriorityIcon = () => (
     </svg>
 );
 
-const MediumPriorityIcon = () => (
+export const MediumPriorityIcon = () => (
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-zinc-400 shrink-0">
         <rect x="2" y="10" width="3" height="4" rx="1" fill="currentColor" />
         <rect x="6.5" y="6" width="3" height="8" rx="1" fill="currentColor" />
@@ -31,7 +31,7 @@ const MediumPriorityIcon = () => (
     </svg>
 );
 
-const LowPriorityIcon = () => (
+export const LowPriorityIcon = () => (
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-zinc-400 shrink-0">
         <rect x="2" y="10" width="3" height="4" rx="1" fill="currentColor" />
         <rect x="6.5" y="6" width="3" height="8" rx="1" fill="currentColor" fillOpacity="0.2" />
@@ -39,7 +39,7 @@ const LowPriorityIcon = () => (
     </svg>
 );
 
-const NoPriorityIcon = () => (
+export const NoPriorityIcon = () => (
     <MoreHorizontal size={14} className="text-zinc-500 shrink-0" strokeWidth={3} />
 );
 

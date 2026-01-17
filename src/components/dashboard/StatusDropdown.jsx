@@ -10,14 +10,14 @@ import {
 import { cn } from "@/lib/cn";
 
 // Custom icons to match Linear exactly
-const InProgressIcon = () => (
+export const InProgressIcon = () => (
   <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-yellow-500 shrink-0">
     <path d="M8 14C11.3137 14 14 11.3137 14 8C14 4.68629 11.3137 2 8 2C4.68629 2 2 4.68629 2 8C2 11.3137 4.68629 14 8 14ZM8 16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8C16 12.4183 12.4183 16 8 16Z" fill="currentColor" fillOpacity="0.2"/>
     <path d="M8 14C11.3137 14 14 11.3137 14 8C14 4.68629 11.3137 2 8 2V14Z" fill="currentColor"/>
   </svg>
 );
 
-const DoneIcon = () => (
+export const DoneIcon = () => (
     <div className="bg-[#5e6ad2] rounded-full p-0.5 flex items-center justify-center w-3.5 h-3.5 shrink-0">
         <Check size={10} className="text-white" strokeWidth={3} />
     </div>

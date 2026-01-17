@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { GripVertical, Circle, CheckCircle2, CircleDashed, Clock, XCircle, AlertCircle, MoreHorizontal } from "lucide-react";
+import { GripVertical, Circle, CheckCircle2, CircleDashed, Clock, XCircle, AlertCircle, MoreHorizontal, Calendar } from "lucide-react";
 import { cn } from "@/lib/cn";
 import StatusDropdown from "./StatusDropdown";
 import PriorityDropdown from "./PriorityDropdown";
@@ -21,6 +21,29 @@ export default function IssueRow({ issue }) {
     month: "short",
     day: "numeric",
   });
+
+  const formatDueDate = (dateStr) => {
+    if (!dateStr) return null;
+    const date = new Date(dateStr);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const checkDate = new Date(date);
+    checkDate.setHours(0, 0, 0, 0);
+
+    if (checkDate.getTime() === today.getTime()) return "Today";
+    if (checkDate.getTime() === tomorrow.getTime()) return "Tomorrow";
+    if (checkDate.getTime() === yesterday.getTime()) return "Yesterday";
+
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+  };
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -225,7 +248,25 @@ export default function IssueRow({ issue }) {
         </div>
       </div>
 
-      <div className="flex items-center gap-4 shrink-0">
+      <div className="flex items-center gap-2 shrink-0">
+        {issue.label && (
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/5 border border-white/5">
+                <div className={cn(
+                    "w-1.5 h-1.5 rounded-full",
+                    issue.label === 'Bug' ? 'bg-red-500' :
+                    issue.label === 'Feature' ? 'bg-purple-500' : 'bg-blue-500'
+                )} />
+                <span className="text-[11px] text-zinc-400 font-medium">{issue.label}</span>
+            </div>
+        )}
+        {issue.due_date && (
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/5 border border-white/5 text-zinc-400">
+                <Calendar size={12} className={cn(
+                    (formatDueDate(issue.due_date) === 'Today' || formatDueDate(issue.due_date) === 'Tomorrow') ? "text-orange-500" : "text-zinc-500"
+                )} />
+                <span className="text-[11px] font-medium">{formatDueDate(issue.due_date)}</span>
+            </div>
+        )}
         <span className="text-[12px] text-zinc-500 font-normal mr-1">
             {formattedDate}
         </span>

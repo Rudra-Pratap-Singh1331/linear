@@ -4,9 +4,11 @@ import { useState } from "react";
 import { ChevronDown, ChevronRight, Plus, MoreHorizontal, Circle } from "lucide-react";
 import { cn } from "@/lib/cn";
 import IssueRow from "./IssueRow";
+import CreateIssueModal from "./CreateIssueModal";
 
 export default function IssuesGroup({ title, count, issues = [], icon }) {
   const [isOpen, setIsOpen] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <div className="mt-4 first:mt-2">
@@ -32,7 +34,10 @@ export default function IssuesGroup({ title, count, issues = [], icon }) {
         </div>
         
         <div className="flex items-center gap-1 pr-1">
-            <button className="p-1 rounded hover:bg-white/10 text-zinc-500 transition-colors">
+            <button 
+                onClick={() => setIsModalOpen(true)}
+                className="p-1 rounded hover:bg-white/10 text-zinc-500 transition-colors"
+            >
                 <Plus size={14} />
             </button>
         </div>
@@ -51,6 +56,12 @@ export default function IssuesGroup({ title, count, issues = [], icon }) {
           )}
         </div>
       )}
+
+      <CreateIssueModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        teamKey="TES"
+      />
     </div>
   );
 }
