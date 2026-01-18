@@ -43,5 +43,5 @@ export default async function ActiveIssuesPage({ params }) {
     .eq("workspace_id", workspace.id)
     .eq("status", "todo");
 
-  return <IssuesBoard issues={issues || []} todoCount={todoCount || 0} />;
+  return <IssuesBoard issues={issues || []} todoCount={todoCount || 0} workspaceId={workspace.id} statusFilter={['todo', 'in_progress']} />;
 }

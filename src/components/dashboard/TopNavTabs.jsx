@@ -10,6 +10,8 @@ export default function TopNavTabs() {
   const pathname = usePathname();
   const { workspaceName, teamKey } = params;
 
+  if (!teamKey) return null;
+
   const tabs = [
     { id: "all", label: "All issues", icon: <SquareDashed size={14} /> },
     { id: "active", label: "Active", icon: <CircleCheck size={14} /> },

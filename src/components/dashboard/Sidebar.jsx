@@ -27,8 +27,15 @@ import WorkspaceDropdown from "./WorkspaceDropdown";
 
 export default function Sidebar({ workspace, user, otherWorkspaces }) {
   const params = useParams();
-  const { workspaceName, teamKey } = params;
+  const { workspaceName, teamKey: paramTeamKey, issueKey } = params;
+  
+  // Derive teamKey from issueKey if not present (e.g. TES-123 -> TES)
+  const teamKey = paramTeamKey || (issueKey ? issueKey.split('-')[0] : null);
+
   const { isWorkspaceDropdownOpen, setIsWorkspaceDropdownOpen } = useKeybindings();
+
+  // Show team section if we have a teamKey (either from params or derived)
+  const showTeamSection = !!teamKey;
 
   return (
     <div className="flex h-screen w-60 flex-col border-r border-white/5 bg-[#0b0c0d] text-zinc-400 select-none">
@@ -65,6 +72,7 @@ export default function Sidebar({ workspace, user, otherWorkspaces }) {
             <SidebarItem icon={<MoreHorizontal size={16} />} label="More" />
         </SidebarSection>
 
+        {showTeamSection && (
         <SidebarSection title="Your teams">
            <TeamItem 
              workspaceName={workspaceName} 
@@ -72,6 +80,7 @@ export default function Sidebar({ workspace, user, otherWorkspaces }) {
              teamName={workspace?.name} 
            />
         </SidebarSection>
+        )}
 
         <SidebarSection title="Try">
           <SidebarItem icon={<Inbox size={16} />} label="Import Issues" />

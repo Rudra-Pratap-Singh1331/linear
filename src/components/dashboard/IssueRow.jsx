@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
 import StatusDropdown from "./StatusDropdown";
 import PriorityDropdown from "./PriorityDropdown";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 
 export default function IssueRow({ issue }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -16,6 +16,8 @@ export default function IssueRow({ issue }) {
   const [currentPriority, setCurrentPriority] = useState(issue.priority ?? 0);
   const router = useRouter();
   const supabase = createClient();
+  const params = useParams();
+  const { workspaceName } = params;
 
   const formattedDate = new Date(issue.created_at).toLocaleDateString("en-US", {
     month: "short",
@@ -196,11 +198,22 @@ export default function IssueRow({ issue }) {
     <div 
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="group flex items-center justify-between border-b border-white/5 py-1.5 px-4 hover:bg-white/3 cursor-pointer transition-colors relative"
+      onClick={() => {
+        // slugify title for URL
+        const slug = issue.title
+           .toLowerCase()
+           .replace(/[^a-z0-9]+/g, "-")
+           .replace(/(^-|-$)+/g, "");
+        router.push(`/${workspaceName}/issue/${issue.issue_key}/${slug}`);
+      }}
+      className="group flex items-center justify-between border-b border-white/5 py-1.5 px-4 hover:bg-white/3 cursor-pointer transition-colors relative select-none"
     >
       <div className="flex items-center gap-3 flex-1 min-w-0">
         <div className="flex items-center gap-2.5">
-            <div className="relative">
+            <div 
+              className="relative"
+              onClick={(e) => e.stopPropagation()}
+            >
               <button 
                 onClick={(e) => {
                   e.stopPropagation();
@@ -224,7 +237,10 @@ export default function IssueRow({ issue }) {
         </div>
         
         <div className="flex items-center gap-2.5 flex-1 min-w-0">
-            <div className="relative">
+            <div 
+              className="relative"
+              onClick={(e) => e.stopPropagation()}
+            >
               <button 
                 onClick={(e) => {
                   e.stopPropagation();

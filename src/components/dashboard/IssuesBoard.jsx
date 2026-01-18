@@ -1,11 +1,91 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { ListFilter, LayoutGrid, GripVertical, Circle, CircleDashed, Clock, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import IssuesGroup from "./IssuesGroup";
 
-export default function IssuesBoard({ issues = [], todoCount = 0, viewType }) {
+export default function IssuesBoard({ issues = [], todoCount = 0, viewType, workspaceId, statusFilter }) {
+  const [localIssues, setLocalIssues] = useState(issues);
+  const supabase = createSupabaseBrowserClient();
+
+  // Sync props to state if props change (re-validation)
+  useEffect(() => {
+    setLocalIssues(issues);
+  }, [issues]);
+
+  // Fetch fresh issues on mount to avoid stale cache on back navigation
+  useEffect(() => {
+      if (!workspaceId) return;
+      const fetchIssues = async () => {
+          let query = supabase.from('issues').select('*').eq('workspace_id', workspaceId).order('created_at', { ascending: false });
+          if (statusFilter) {
+               // Handles simple array filter. If multiple filters needed, logic differs.
+               // Assuming statusFilter is array of strings.
+               query = query.in('status', statusFilter);
+          }
+          
+          const { data } = await query;
+          if (data) {
+              setLocalIssues(data);
+          }
+      };
+      fetchIssues();
+  }, [workspaceId, statusFilter, supabase]);
+
+  useEffect(() => {
+    if (!workspaceId) return;
+
+    const channel = supabase.channel('issues-realtime')
+        .on('postgres_changes', { 
+            event: '*', 
+            schema: 'public', 
+            table: 'issues',
+            filter: `workspace_id=eq.${workspaceId}` 
+        }, (payload) => {
+            if (payload.eventType === 'INSERT') {
+                const newIssue = payload.new;
+                // Check if it matches filter
+                if (!statusFilter || statusFilter.includes(newIssue.status)) {
+                    setLocalIssues(prev => [newIssue, ...prev]);
+                }
+            } else if (payload.eventType === 'UPDATE') {
+                 const updatedIssue = payload.new;
+                 const isActive = !statusFilter || statusFilter.includes(updatedIssue.status);
+
+                 setLocalIssues(prev => {
+                     const exists = prev.find(i => i.id === updatedIssue.id);
+                     if (exists) {
+                         if (isActive) {
+                             return prev.map(i => i.id === updatedIssue.id ? updatedIssue : i);
+                         } else {
+                             // Moved out of view
+                             return prev.filter(i => i.id !== updatedIssue.id);
+                         }
+                     } else {
+                         // Moved into view (e.g. from Backlog to Todo)
+                         if (isActive) {
+                             return [updatedIssue, ...prev];
+                         }
+                         return prev;
+                     }
+                 });
+            } else if (payload.eventType === 'DELETE') {
+                setLocalIssues(prev => prev.filter(i => i.id !== payload.old.id));
+            }
+        })
+        .subscribe((status) => {
+            console.log("Realtime subscription status:", status, "Workspace:", workspaceId);
+        });
+
+    return () => {
+        console.log("Cleaning up realtime subscription");
+        supabase.removeChannel(channel);
+    };
+  }, [workspaceId, statusFilter, supabase]);
+
   // Sort issues by priority: Urgent > High > Medium > Low > No priority
-  const sortedIssues = [...issues].sort((a, b) => {
+  const sortedIssues = [...localIssues].sort((a, b) => {
     const getWeight = (p) => {
       // Handle both numeric and string values for resilience
       if (p === 1 || p === "urgent") return 4;
@@ -27,8 +107,8 @@ export default function IssuesBoard({ issues = [], todoCount = 0, viewType }) {
 
   const groups = [
     { title: "Backlog", issues: backlogIssues, icon: CircleDashed, color: "text-zinc-600" },
-    { title: "Todo", issues: todoIssues, count: todoCount, icon: Circle, color: "text-zinc-500" },
-    { title: "In Progress", issues: inProgressIssues, icon: InProgressIcon, color: "text-yellow-500" }, // Use custom icon if needed or import
+    { title: "Todo", issues: todoIssues, count: todoIssues.length, icon: Circle, color: "text-zinc-500" },
+    { title: "In Progress", issues: inProgressIssues, icon: InProgressIcon, color: "text-yellow-500" },
     { title: "Done", issues: doneIssues, icon: CheckCircle2, color: "text-blue-500" },
     { title: "Canceled", issues: canceledIssues, icon: XCircle, color: "text-zinc-600" },
     { title: "Duplicate", issues: duplicateIssues, icon: AlertCircle, color: "text-zinc-600" },
@@ -67,7 +147,7 @@ export default function IssuesBoard({ issues = [], todoCount = 0, viewType }) {
           )
         ))}
 
-        {issues.length === 0 && viewType === "backlog" && (
+        {localIssues.length === 0 && viewType === "backlog" && (
           <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 text-center">
             <div className="grid grid-cols-2 gap-2 mb-8 opacity-40">
               <CircleDashed size={32} className="text-zinc-400" />
@@ -99,7 +179,7 @@ export default function IssuesBoard({ issues = [], todoCount = 0, viewType }) {
           </div>
         )}
 
-        {issues.length === 0 && viewType !== "backlog" && (
+        {localIssues.length === 0 && viewType !== "backlog" && (
           <div className="flex h-[60vh] flex-col items-center justify-center text-zinc-500">
             <div className="mb-4 rounded-full bg-zinc-800/50 p-6">
                 <GripVertical size={40} className="text-zinc-600" />
