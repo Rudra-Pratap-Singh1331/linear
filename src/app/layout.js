@@ -12,7 +12,7 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "Linear - Create your workspace",
+  title: "Linear",
   description: "Sign up for Linear to create your workspace",
 };
 
