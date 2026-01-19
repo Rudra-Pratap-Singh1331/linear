@@ -20,7 +20,8 @@ import {
   X,
   Sparkles,
   Edit,
-  Loader2
+  Loader2,
+  PanelRight
 } from "lucide-react";
 
 import StatusDropdown, { InProgressIcon, DoneIcon } from "@/components/dashboard/StatusDropdown";
@@ -111,6 +112,7 @@ export default function IssueDetailView({
   const [commentText, setCommentText] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isPolishing, setIsPolishing] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   
   // Due Date State
   const [dueDate, setDueDate] = useState(initialIssue.due_date ? new Date(initialIssue.due_date) : null);
@@ -467,15 +469,23 @@ export default function IssueDetailView({
   return (
     <div className="flex h-full  flex-col bg-[#0b0c0d] text-zinc-100 lg:flex-row">
       {/* Center Main Content */}
-      <div className="flex-1 overflow-y-auto border-r border-white/5 p-8 mx-auto w-full lg:max-w-[1010px]">
+      <div className="flex-1 overflow-y-auto lg:border-r border-white/5 p-8 mx-auto w-full lg:max-w-[1010px]">
          {/* Breadcrumb / Top Bar */}
-         <div className="flex items-center gap-2 mb-6 text-sm text-zinc-500">
-            <span className="flex items-center justify-center w-4 h-4 rounded bg-purple-500/20 text-purple-400 font-bold text-[9px]">
-                {workspaceName.charAt(0).toUpperCase()}
-            </span>
-            <span>{workspaceName}</span>
-            <span>/</span>
-            <span className="font-medium text-zinc-300">{issue.issue_key}</span>
+         <div className="flex items-center justify-between mb-6 text-sm text-zinc-500">
+            <div className="flex items-center gap-2">
+                <span className="flex items-center justify-center w-4 h-4 rounded bg-purple-500/20 text-purple-400 font-bold text-[9px]">
+                    {workspaceName.charAt(0).toUpperCase()}
+                </span>
+                <span>{workspaceName}</span>
+                <span>/</span>
+                <span className="font-medium text-zinc-300">{issue.issue_key}</span>
+            </div>
+            <button 
+                onClick={() => setIsMobileSidebarOpen(true)}
+                className="lg:hidden p-1.5 hover:bg-white/5 rounded-md transition-colors text-zinc-500 hover:text-zinc-300 border border-white/5"
+            >
+                <PanelRight size={18} />
+            </button>
          </div>
 
          {/* Title Input */}
@@ -555,146 +565,171 @@ export default function IssueDetailView({
          </div>
       </div>
 
-      <div className="w-72 shrink-0 p-4 space-y-8 hidden lg:block border-l border-white/5 pt-8">
-          {/* Properties Section */}
-          <div className="space-y-4">
-            {/* Status */}
-             <div className="relative">
-                <div className="text-[12px] font-medium text-zinc-500 mb-2 ml-2">Status</div>
-                <button 
-                    onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
-                    className="flex items-center gap-2.5 w-full text-left px-2 py-1.5 hover:bg-white/5 rounded text-[13px] text-zinc-300 group transition-colors"
-                >
-                    <div className="shrink-0">{getStatusIcon(currentStatus)}</div>
-                    <span>{getStatusLabel(currentStatus)}</span>
-                </button>
-                {isStatusDropdownOpen && (
-                    <StatusDropdown 
-                        currentStatus={currentStatus} 
-                        onSelect={handleStatusChange} 
-                        onClose={() => setIsStatusDropdownOpen(false)} 
-                    />
-                )}
-            </div>
+      {/* Mobile Sidebar Overlay */}
+      {isMobileSidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-[2px] lg:hidden animate-in fade-in duration-300"
+          onClick={() => setIsMobileSidebarOpen(false)}
+        />
+      )}
 
-            {/* Priority */}
-            <div className="relative">
-                 <div className="text-[12px] font-medium text-zinc-500 mb-2 ml-2">Priority</div>
-                 <button 
-                     onClick={() => setIsPriorityDropdownOpen(!isPriorityDropdownOpen)}
-                     className="flex items-center gap-2.5 w-full text-left px-2 py-1.5 hover:bg-white/5 rounded text-[13px] text-zinc-300 group transition-colors"
-                 >
-                    <div className="shrink-0">{getPriorityIcon(priorityId)}</div>
-                    <span>{getPriorityLabel(priorityId)}</span>
-                </button>
-                 {isPriorityDropdownOpen && (
-                    <PriorityDropdown 
-                        currentPriority={priorityId} 
-                        onSelect={handlePriorityChange} 
-                        onClose={() => setIsPriorityDropdownOpen(false)} 
-                    />
-                )}
-            </div>
-
-             {/* Assignee (Mock) */}
-             <div>
-                 <div className="text-[12px] font-medium text-zinc-500 mb-2 ml-2">Assignee</div>
-                <button className="flex items-center gap-2.5 w-full text-left px-2 py-1.5 hover:bg-white/5 rounded text-[13px] text-zinc-300 group transition-colors">
-                    <div className="w-4 h-4 rounded-full border border-dashed border-zinc-500 flex items-center justify-center">
-                         <span className="text-[10px] text-zinc-500">+</span>
-                    </div>
-                    <span className="text-zinc-500">Assign to...</span>
-                </button>
-             </div>
-          </div>
-          
-           {/* Labels */}
-          <div className="relative">
-            <div className="text-[12px] font-medium text-zinc-500 mb-2">Labels</div>
-            <div className="flex flex-wrap gap-1.5">
-                {selectedLabels.map(label => (
-                    <span key={label.id} className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium border bg-white/5 border-white/10 text-zinc-300">
-                        <span 
-                            className="w-1.5 h-1.5 rounded-full" 
-                            style={{ backgroundColor: label.color }}
-                        />
-                        {label.name}
-                    </span>
-                ))}
-                 <button 
-                    onClick={() => setIsLabelsDropdownOpen(!isLabelsDropdownOpen)}
-                    className="text-zinc-500 hover:text-zinc-300 text-[16px] leading-none px-1 h-5 flex items-center justify-center rounded hover:bg-white/5"
-                 >
-                    <Plus size={14} />
-                 </button>
-                 {isLabelsDropdownOpen && (
-                     <LabelsDropdown 
-                        workspaceId={issue.workspace_id} // passed from parent
-                        selectedLabelIds={selectedLabelIds}
-                        onToggle={handleLabelToggle}
-                        onClose={() => setIsLabelsDropdownOpen(false)}
-                     />
-                 )}
-            </div>
-          </div>
-
-            {/* Due Date */}
-            <div className="relative">
-             <div className="text-[12px] font-medium text-zinc-500 mb-2">Due Date</div>
+      {/* Sidebar */}
+      <div className={cn(
+        "fixed lg:relative inset-y-0 right-0 z-50 w-80 lg:w-72 shrink-0 p-4 space-y-8 bg-[#0b0c0d] lg:bg-transparent border-l border-white/5 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:block lg:pt-8",
+        isMobileSidebarOpen ? "translate-x-0 shadow-[-32px_0_64px_rgba(0,0,0,0.5)]" : "translate-x-full lg:translate-x-0 hidden lg:block"
+      )}>
+          {/* Mobile Close Button */}
+          <div className="flex lg:hidden items-center justify-between mb-4 pb-4 border-b border-white/5">
+              <span className="text-sm font-semibold text-zinc-200">Issue details</span>
               <button 
-                 onClick={() => setIsDueDateDropdownOpen(!isDueDateDropdownOpen)}
-                 className={cn(
-                     "flex items-center gap-2 w-full text-left px-2 py-1.5 hover:bg-white/5 rounded text-[13px] text-zinc-300 group transition-colors",
-                     isDueDateDropdownOpen && "bg-white/5"
-                 )}
+                onClick={() => setIsMobileSidebarOpen(false)}
+                className="p-1 hover:bg-white/5 rounded transition-colors text-zinc-500"
               >
-                     <Clock size={14} className={cn("text-zinc-500", dueDate && "text-zinc-300")} /> 
-                     <span>{dueDate ? formatDueDate(dueDate) : "No due date"}</span>
-             </button>
-             {isDueDateDropdownOpen && (
-                 <div className="absolute top-full left-0 mt-2 w-[220px] bg-[#1a1b1c] border border-white/10 rounded-lg shadow-[0px_8px_32px_rgba(0,0,0,0.6)] py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
-                     <div className="py-1">
-                         <div 
-                             onClick={(e) => { e.stopPropagation(); handleDueDateChange(null); }}
-                             className="px-3 py-1.5 flex items-center gap-2.5 hover:bg-white/5 cursor-pointer group text-red-400"
-                         >
-                             <div className="w-4 h-4 flex items-center justify-center">
-                                 <X size={14} />
-                             </div>
-                             <span className="text-[13px] font-medium">Remove due date</span>
-                         </div>
-                         <div className="h-px bg-white/5 my-1"></div>
-                         {[
-                             { label: "Custom...", action: () => setIsDatePickerOpen(true) },
-                             { label: "Tomorrow", sub: "Sun", action: () => { const d = new Date(); d.setDate(d.getDate() + 1); handleDueDateChange(d); } },
-                             { label: "End of this week", sub: "Fri", action: () => { const d = new Date(); d.setDate(d.getDate() + (5 - d.getDay())); handleDueDateChange(d); } },
-                             { label: "In one week", sub: "Sat", action: () => { const d = new Date(); d.setDate(d.getDate() + 7); handleDueDateChange(d); } }
-                         ].map((item, i) => (
+                  <X size={20} />
+              </button>
+          </div>
+
+          <div className="overflow-y-auto h-full pb-20 lg:pb-0 scrollbar-none">
+              {/* Properties Section */}
+              <div className="space-y-4">
+                {/* Status */}
+                 <div className="relative">
+                    <div className="text-[12px] font-medium text-zinc-500 mb-2 ml-2">Status</div>
+                    <button 
+                        onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
+                        className="flex items-center gap-2.5 w-full text-left px-2 py-1.5 hover:bg-white/5 rounded text-[13px] text-zinc-300 group transition-colors"
+                    >
+                        <div className="shrink-0">{getStatusIcon(currentStatus)}</div>
+                        <span>{getStatusLabel(currentStatus)}</span>
+                    </button>
+                    {isStatusDropdownOpen && (
+                        <StatusDropdown 
+                            currentStatus={currentStatus} 
+                            onSelect={handleStatusChange} 
+                            onClose={() => setIsStatusDropdownOpen(false)} 
+                        />
+                    )}
+                </div>
+
+                {/* Priority */}
+                <div className="relative">
+                     <div className="text-[12px] font-medium text-zinc-500 mb-2 ml-2">Priority</div>
+                     <button 
+                         onClick={() => setIsPriorityDropdownOpen(!isPriorityDropdownOpen)}
+                         className="flex items-center gap-2.5 w-full text-left px-2 py-1.5 hover:bg-white/5 rounded text-[13px] text-zinc-300 group transition-colors"
+                     >
+                        <div className="shrink-0">{getPriorityIcon(priorityId)}</div>
+                        <span>{getPriorityLabel(priorityId)}</span>
+                    </button>
+                     {isPriorityDropdownOpen && (
+                        <PriorityDropdown 
+                            currentPriority={priorityId} 
+                            onSelect={handlePriorityChange} 
+                            onClose={() => setIsPriorityDropdownOpen(false)} 
+                        />
+                    )}
+                </div>
+
+                 {/* Assignee (Mock) */}
+                 <div>
+                     <div className="text-[12px] font-medium text-zinc-500 mb-2 ml-2">Assignee</div>
+                    <button className="flex items-center gap-2.5 w-full text-left px-2 py-1.5 hover:bg-white/5 rounded text-[13px] text-zinc-300 group transition-colors">
+                        <div className="w-4 h-4 rounded-full border border-dashed border-zinc-500 flex items-center justify-center">
+                             <span className="text-[10px] text-zinc-500">+</span>
+                        </div>
+                        <span className="text-zinc-500">Assign to...</span>
+                    </button>
+                 </div>
+              </div>
+              
+               {/* Labels */}
+              <div className="relative mt-8">
+                <div className="text-[12px] font-medium text-zinc-500 mb-2">Labels</div>
+                <div className="flex flex-wrap gap-1.5">
+                    {selectedLabels.map(label => (
+                        <span key={label.id} className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium border bg-white/5 border-white/10 text-zinc-300">
+                            <span 
+                                className="w-1.5 h-1.5 rounded-full" 
+                                style={{ backgroundColor: label.color }}
+                            />
+                            {label.name}
+                        </span>
+                    ))}
+                     <button 
+                        onClick={() => setIsLabelsDropdownOpen(!isLabelsDropdownOpen)}
+                        className="text-zinc-500 hover:text-zinc-300 text-[16px] leading-none px-1 h-5 flex items-center justify-center rounded hover:bg-white/5"
+                     >
+                        <Plus size={14} />
+                     </button>
+                     {isLabelsDropdownOpen && (
+                         <LabelsDropdown 
+                            workspaceId={issue.workspace_id} // passed from parent
+                            selectedLabelIds={selectedLabelIds}
+                            onToggle={handleLabelToggle}
+                            onClose={() => setIsLabelsDropdownOpen(false)}
+                         />
+                     )}
+                </div>
+              </div>
+
+                {/* Due Date */}
+                <div className="relative mt-8">
+                 <div className="text-[12px] font-medium text-zinc-500 mb-2">Due Date</div>
+                  <button 
+                     onClick={() => setIsDueDateDropdownOpen(!isDueDateDropdownOpen)}
+                     className={cn(
+                         "flex items-center gap-2 w-full text-left px-2 py-1.5 hover:bg-white/5 rounded text-[13px] text-zinc-300 group transition-colors",
+                         isDueDateDropdownOpen && "bg-white/5"
+                     )}
+                  >
+                         <Clock size={14} className={cn("text-zinc-500", dueDate && "text-zinc-300")} /> 
+                         <span>{dueDate ? formatDueDate(dueDate) : "No due date"}</span>
+                 </button>
+                 {isDueDateDropdownOpen && (
+                     <div className="absolute top-full left-0 mt-2 w-[220px] bg-[#1a1b1c] border border-white/10 rounded-lg shadow-[0px_8px_32px_rgba(0,0,0,0.6)] py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                         <div className="py-1">
                              <div 
-                                 key={i} 
-                                 onClick={(e) => { e.stopPropagation(); item.action(); }}
-                                 className="px-3 py-1.5 flex items-center justify-between hover:bg-white/5 cursor-pointer group"
+                                 onClick={(e) => { e.stopPropagation(); handleDueDateChange(null); }}
+                                 className="px-3 py-1.5 flex items-center gap-2.5 hover:bg-white/5 cursor-pointer group text-red-400"
                              >
-                                 <div className="flex items-center gap-2.5">
-                                     <div className="w-4 h-4 flex items-center justify-center text-zinc-500 group-hover:text-zinc-300">
-                                         <Calendar size={14} />
-                                     </div>
-                                     <span className="text-[13px] text-zinc-300 group-hover:text-zinc-100 font-medium">{item.label}</span>
+                                 <div className="w-4 h-4 flex items-center justify-center">
+                                     <X size={14} />
                                  </div>
+                                 <span className="text-[13px] font-medium">Remove due date</span>
                              </div>
-                         ))}
+                             <div className="h-px bg-white/5 my-1"></div>
+                             {[
+                                 { label: "Custom...", action: () => setIsDatePickerOpen(true) },
+                                 { label: "Tomorrow", sub: "Sun", action: () => { const d = new Date(); d.setDate(d.getDate() + 1); handleDueDateChange(d); } },
+                                 { label: "End of this week", sub: "Fri", action: () => { const d = new Date(); d.setDate(d.getDate() + (5 - d.getDay())); handleDueDateChange(d); } },
+                                 { label: "In one week", sub: "Sat", action: () => { const d = new Date(); d.setDate(d.getDate() + 7); handleDueDateChange(d); } }
+                             ].map((item, i) => (
+                                 <div 
+                                     key={i} 
+                                     onClick={(e) => { e.stopPropagation(); item.action(); }}
+                                     className="px-3 py-1.5 flex items-center justify-between hover:bg-white/5 cursor-pointer group"
+                                 >
+                                     <div className="flex items-center gap-2.5">
+                                         <div className="w-4 h-4 flex items-center justify-center text-zinc-500 group-hover:text-zinc-300">
+                                             <Calendar size={14} />
+                                         </div>
+                                         <span className="text-[13px] text-zinc-300 group-hover:text-zinc-100 font-medium">{item.label}</span>
+                                     </div>
+                                 </div>
+                             ))}
+                         </div>
                      </div>
-                 </div>
-             )}
-             {isDatePickerOpen && (
-                 <div className="absolute top-full right-0 z-50">
-                     <DatePicker 
-                         onSelect={(date) => { handleDueDateChange(date); setIsDatePickerOpen(false); }} 
-                         onClose={() => setIsDatePickerOpen(false)} 
-                     />
-                 </div>
-             )}
-            </div>
+                 )}
+                 {isDatePickerOpen && (
+                     <div className="absolute top-full right-0 z-50">
+                         <DatePicker 
+                             onSelect={(date) => { handleDueDateChange(date); setIsDatePickerOpen(false); }} 
+                             onClose={() => setIsDatePickerOpen(false)} 
+                         />
+                     </div>
+                 )}
+                </div>
+          </div>
       </div>
     </div>
   );
