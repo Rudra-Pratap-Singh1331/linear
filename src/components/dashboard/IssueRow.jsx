@@ -62,7 +62,7 @@ export default function IssueRow({ issue }) {
         return (
           <CircleDashed
             size={14}
-            className="text-zinc-500 dark:text-zinc-600"
+            className="text-zinc-600 dark:text-zinc-600"
             strokeWidth={2.5}
           />
         );
@@ -70,31 +70,19 @@ export default function IssueRow({ issue }) {
         return (
           <Circle
             size={14}
-            className="text-zinc-400 dark:text-zinc-500"
+            className="text-zinc-500 dark:text-zinc-500"
             strokeWidth={2.5}
           />
         );
       case "in_progress":
-        return (
-          <Clock
-            size={14}
-            className="text-yellow-500"
-            strokeWidth={2.5}
-          />
-        );
+        return <Clock size={14} className="text-yellow-500" strokeWidth={2.5} />;
       case "done":
-        return (
-          <CheckCircle2
-            size={14}
-            className="text-blue-500"
-            strokeWidth={2.5}
-          />
-        );
+        return <CheckCircle2 size={14} className="text-blue-500" strokeWidth={2.5} />;
       case "canceled":
         return (
           <XCircle
             size={14}
-            className="text-zinc-500 dark:text-zinc-600"
+            className="text-zinc-600 dark:text-zinc-600"
             strokeWidth={2.5}
           />
         );
@@ -102,7 +90,7 @@ export default function IssueRow({ issue }) {
         return (
           <AlertCircle
             size={14}
-            className="text-zinc-500 dark:text-zinc-600"
+            className="text-zinc-600 dark:text-zinc-600"
             strokeWidth={2.5}
           />
         );
@@ -110,7 +98,7 @@ export default function IssueRow({ issue }) {
         return (
           <Circle
             size={14}
-            className="text-zinc-400 dark:text-zinc-500"
+            className="text-zinc-500 dark:text-zinc-500"
             strokeWidth={2.5}
           />
         );
@@ -133,7 +121,7 @@ export default function IssueRow({ issue }) {
             viewBox="0 0 16 16"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="text-zinc-500 dark:text-zinc-400 shrink-0"
+            className="text-zinc-600 dark:text-zinc-400 shrink-0"
           >
             <rect x="2" y="10" width="3" height="4" rx="1" fill="currentColor" />
             <rect x="6.5" y="6" width="3" height="8" rx="1" fill="currentColor" />
@@ -148,7 +136,7 @@ export default function IssueRow({ issue }) {
             viewBox="0 0 16 16"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="text-zinc-500 dark:text-zinc-400 shrink-0"
+            className="text-zinc-600 dark:text-zinc-400 shrink-0"
           >
             <rect x="2" y="10" width="3" height="4" rx="1" fill="currentColor" />
             <rect x="6.5" y="6" width="3" height="8" rx="1" fill="currentColor" />
@@ -171,7 +159,7 @@ export default function IssueRow({ issue }) {
             viewBox="0 0 16 16"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="text-zinc-500 dark:text-zinc-400 shrink-0"
+            className="text-zinc-600 dark:text-zinc-400 shrink-0"
           >
             <rect x="2" y="10" width="3" height="4" rx="1" fill="currentColor" />
             <rect
@@ -198,7 +186,7 @@ export default function IssueRow({ issue }) {
         return (
           <MoreHorizontal
             size={14}
-            className="text-zinc-400 dark:text-zinc-600 shrink-0"
+            className="text-zinc-500 dark:text-zinc-600 shrink-0"
           />
         );
     }
@@ -306,8 +294,8 @@ export default function IssueRow({ issue }) {
         router.push(`/${workspaceName}/issue/${issue.issue_key}/${slug}`);
       }}
       className="group flex items-center justify-between border-b py-1.5 px-4 cursor-pointer transition-colors relative select-none
-        border-zinc-200/70 hover:bg-zinc-100
-        dark:border-white/5 dark:hover:bg-white/3"
+        bg-[#fafafa] border-zinc-300/40 hover:bg-zinc-200/40
+        dark:bg-transparent dark:border-white/5 dark:hover:bg-white/3"
     >
       <div className="flex items-center gap-3 flex-1 min-w-0">
         <div className="flex items-center gap-2.5">
@@ -318,7 +306,7 @@ export default function IssueRow({ issue }) {
                 setIsPriorityDropdownOpen(!isPriorityDropdownOpen);
               }}
               className="flex items-center justify-center p-0.5 rounded transition-colors
-                hover:bg-zinc-200/70
+                hover:bg-zinc-300/60
                 dark:hover:bg-white/10"
             >
               {getPriorityIcon(currentPriority)}
@@ -333,8 +321,8 @@ export default function IssueRow({ issue }) {
             )}
           </div>
 
-          <span className="text-[12px] font-medium shrink-0 tracking-tight uppercase
-            text-zinc-500
+          <span className="text-[12px] font-semibold shrink-0 tracking-tight uppercase
+            text-zinc-600
             dark:text-zinc-500"
           >
             {issue.issue_key}
@@ -349,7 +337,7 @@ export default function IssueRow({ issue }) {
                 setIsDropdownOpen(!isDropdownOpen);
               }}
               className="flex items-center justify-center p-0.5 rounded transition-colors
-                hover:bg-zinc-200/70
+                hover:bg-zinc-300/60
                 dark:hover:bg-white/10"
             >
               {getStatusIcon(currentStatus)}
@@ -364,8 +352,8 @@ export default function IssueRow({ issue }) {
             )}
           </div>
 
-          <span className="text-[13px] truncate font-medium
-            text-zinc-900
+          <span className="text-[13px] truncate font-semibold
+            text-zinc-950
             dark:text-zinc-100"
           >
             {issue.title}
@@ -376,7 +364,7 @@ export default function IssueRow({ issue }) {
       <div className="flex items-center gap-2 shrink-0">
         {issue.label && (
           <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full border
-            bg-zinc-100 border-zinc-200
+            bg-zinc-200/40 border-zinc-300/50
             dark:bg-white/5 dark:border-white/5"
           >
             <div
@@ -389,8 +377,8 @@ export default function IssueRow({ issue }) {
                   : "bg-blue-500"
               )}
             />
-            <span className="text-[11px] font-medium
-              text-zinc-600
+            <span className="text-[11px] font-semibold
+              text-zinc-800
               dark:text-zinc-400"
             >
               {issue.label}
@@ -400,7 +388,7 @@ export default function IssueRow({ issue }) {
 
         {issue.due_date && (
           <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full border
-            bg-zinc-100 border-zinc-200 text-zinc-600
+            bg-zinc-200/40 border-zinc-300/50 text-zinc-800
             dark:bg-white/5 dark:border-white/5 dark:text-zinc-400"
           >
             <Calendar
@@ -409,17 +397,17 @@ export default function IssueRow({ issue }) {
                 formatDueDate(issue.due_date) === "Today" ||
                   formatDueDate(issue.due_date) === "Tomorrow"
                   ? "text-orange-500"
-                  : "text-zinc-500 dark:text-zinc-500"
+                  : "text-zinc-600 dark:text-zinc-500"
               )}
             />
-            <span className="text-[11px] font-medium">
+            <span className="text-[11px] font-semibold">
               {formatDueDate(issue.due_date)}
             </span>
           </div>
         )}
 
-        <span className="text-[12px] font-normal mr-1
-          text-zinc-500
+        <span className="text-[12px] font-medium mr-1
+          text-zinc-600
           dark:text-zinc-500"
         >
           {formattedDate}
