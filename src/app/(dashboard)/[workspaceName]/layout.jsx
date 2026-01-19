@@ -9,7 +9,10 @@ export default async function DashboardLayout({ children, params }) {
   const supabase = await createClient();
 
   // 1. Get current user
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user) {
     redirect("/signup");
   }
@@ -35,10 +38,14 @@ export default async function DashboardLayout({ children, params }) {
 
   if (memberError || !membership) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#08090A] text-zinc-400">
+      <div className="flex h-screen items-center justify-center bg-white text-zinc-700 dark:bg-[#08090A] dark:text-zinc-400">
         <div className="text-center">
-          <h1 className="text-2xl font-semibold mb-2">Access Denied</h1>
-          <p>You don't have permission to access this workspace.</p>
+          <h1 className="text-2xl font-semibold mb-2 text-zinc-900 dark:text-zinc-100">
+            Access Denied
+          </h1>
+          <p className="text-zinc-600 dark:text-zinc-400">
+            You don't have permission to access this workspace.
+          </p>
         </div>
       </div>
     );
@@ -49,22 +56,29 @@ export default async function DashboardLayout({ children, params }) {
     .from("workspace_members")
     .select("workspace_id, workspaces(*)")
     .eq("user_id", user.id);
-  
-  const otherWorkspaces = memberships
-    ?.map(m => m.workspaces)
-    .filter(ws => ws.id !== workspace.id) || [];
+
+  const otherWorkspaces =
+    memberships?.map((m) => m.workspaces).filter((ws) => ws.id !== workspace.id) ||
+    [];
 
   return (
     <KeybindingsProvider>
-      <div className="flex h-screen bg-[#0b0c0d] text-zinc-400 overflow-hidden font-sans select-none">
-        <Sidebar 
-          workspace={workspace} 
-          user={user} 
-          otherWorkspaces={otherWorkspaces} 
+      <div className="flex h-screen overflow-hidden font-sans select-none
+        bg-white text-zinc-700
+        dark:bg-[#0b0c0d] dark:text-zinc-400"
+      >
+        <Sidebar
+          workspace={workspace}
+          user={user}
+          otherWorkspaces={otherWorkspaces}
         />
+
         <div className="flex flex-1 flex-col overflow-hidden">
           <TopNavTabs />
-          <main className="flex-1 overflow-hidden relative">
+
+          <main className="flex-1 overflow-hidden relative
+            bg-zinc-50 dark:bg-transparent"
+          >
             {children}
           </main>
         </div>
