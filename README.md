@@ -22,6 +22,16 @@ A **Linear-inspired issue tracker** built as a trial task project with a clean m
 - Workspace creation page (first-time onboarding)
 - Workspace-based dynamic routing (Linear-style URLs)
 
+### ✅ Workspace Keyboard Shortcut Support
+- Built fast workspace navigation using keyboard shortcuts
+- Enabled users to trigger key workspace actions efficiently without mouse interaction
+- Improved overall workflow speed and usability with Linear-style shortcuts
+
+### ✅ Linear-style Issue Detail Page
+- Clean and minimal Issue Details UI
+- Right-side properties panel (Status, Priority, Labels, etc.)
+- Activity section for comments + events
+
 ### ✅ Linear-style Issue Detail Page
 - Clean and minimal Issue Details UI
 - Right-side properties panel (Status, Priority, Labels, etc.)
