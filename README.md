@@ -78,35 +78,31 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
 ```
 ## 🛠️ Setup & Run Locally
 
-```Install dependencies:
-
+Install dependencies and Run server:
+```
 npm install
-Run dev server:
 npm run dev
 ```
 
-```Build for production:
-
+Build for production:
+```
 npm run build
 npm start
 ```
 
 ## 🌍 Deployment (Vercel)
-
-->Push code to GitHub
-->Import the repo in Vercel
-->Add the same env variables in:
-  `Vercel → Project → Settings → Environment Variables`
-
-## Deploy ✅
+-Push code to GitHub
+-Import the repo in Vercel
+-Add the same env variables in:
+-`Vercel → Project → Settings → Environment Variables`
 
 # 📌 Notes
 
 The UI is designed to match Linear’s minimalist design language
 The AI helpers are added to improve productivity:
-          ->reply faster
-          ->polish messages
-          ->quickly understand issue activity
+-reply faster
+-polish messages
+-quickly understand issue activity
 
 ## 👤 Author
 
