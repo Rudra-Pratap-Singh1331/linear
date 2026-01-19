@@ -358,7 +358,7 @@ export default function IssueActivity({ issueId, workspaceId, currentUser, issue
                            {/* Reply Box UI matching Image 2 */}
                            {replyingToId === activity.id && (
                              <div className="mt-3 ml-0 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
-                                <div className="bg-[#141517] border border-white/10 rounded-lg p-3 shadow-lg group focus-within:border-white/20 transition-colors">
+                                <div className="bg-[#141517] border border-white/10 rounded-lg p-3 shadow-lg group transition-colors">
                                     <div className="flex items-start gap-3">
                                         <div className="w-6 h-6 rounded-full bg-green-600 flex items-center justify-center text-[10px] font-medium text-white uppercase shrink-0 mt-0.5">
                                             {currentUser?.email?.substring(0,2)}
