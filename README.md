@@ -91,18 +91,19 @@ npm start
 ```
 
 ## 🌍 Deployment (Vercel)
--Push code to GitHub
--Import the repo in Vercel
--Add the same env variables in:
--`Vercel → Project → Settings → Environment Variables`
+
+- Push code to GitHub
+- Import the repo in Vercel
+- Add the same env variables in:
+- `Vercel → Project → Settings → Environment Variables`
 
 # 📌 Notes
 
 The UI is designed to match Linear’s minimalist design language
 The AI helpers are added to improve productivity:
--reply faster
--polish messages
--quickly understand issue activity
+- reply faster
+- polish messages
+- quickly understand issue activity
 
 ## 👤 Author
 
