@@ -110,9 +110,10 @@ npm start
 
 The UI is designed to match Linear’s minimalist design language
 The AI helpers are added to improve productivity:
-- reply faster
+- reply to issue comments faster
+- create issue efficiently through natural language
 - polish messages
-- quickly understand issue activity
+- quickly understand issue activity(summary)
 
 ## 👤 Author
 
