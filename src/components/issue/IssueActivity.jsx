@@ -373,7 +373,7 @@ export default function IssueActivity({ issueId, workspaceId, currentUser, issue
                                                     autoResize();
                                                 }}
                                                 placeholder="Leave a reply..."
-                                                className="w-full bg-transparent border-none focus:ring-0 p-0 text-[14px] text-zinc-200 placeholder:text-zinc-500 resize-none min-h-[40px] leading-relaxed overflow-hidden"
+                                                className="w-full bg-transparent border-none  p-0 text-[14px] text-zinc-200 placeholder:text-zinc-500 resize-none min-h-[40px] leading-relaxed overflow-hidden"
                                                 onKeyDown={(e) => {
                                                     if (e.key === 'Enter' && !e.shiftKey) {
                                                         e.preventDefault();
