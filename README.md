@@ -44,7 +44,6 @@ A **Linear-inspired issue tracker** built as a trial task project with a clean m
 ## 🧩 App Routes
 
 ### Pages
-- `/` – Home
 - `/login` – Login
 - `/signup` – Signup
 - `/create-workspace` – Create Workspace
