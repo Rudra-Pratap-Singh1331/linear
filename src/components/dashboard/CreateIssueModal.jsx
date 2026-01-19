@@ -721,18 +721,110 @@ export default function CreateIssueModal({ isOpen, onClose, teamKey = "TES" }) {
 
               {/* More */}
               <div className="relative" ref={moreRef}>
-                <button
-                  onClick={() => setIsMoreOpen(!isMoreOpen)}
-                  className={cn(
-                    "p-1 rounded transition-colors",
-                    "text-zinc-600 hover:text-zinc-950 hover:bg-zinc-200/60",
-                    "dark:text-zinc-500 dark:hover:text-zinc-300 dark:hover:bg-white/10",
-                    isMoreOpen && "bg-zinc-200/60 text-zinc-950 dark:bg-white/10 dark:text-zinc-300"
-                  )}
-                >
-                  <MoreHorizontal size={16} />
-                </button>
-              </div>
+                        <button 
+                            onClick={() => setIsMoreOpen(!isMoreOpen)}
+                            className={cn(
+                                "p-1 rounded hover:bg-white/10 text-zinc-500 hover:text-zinc-300 transition-colors",
+                                isMoreOpen && "bg-white/10 text-zinc-300"
+                            )}
+                        >
+                            <MoreHorizontal size={16} />
+                        </button>
+
+                        {/* More Dropdown */}
+                        {isMoreOpen && (
+                            <div className="absolute top-full left-0 mt-2 w-[220px] bg-[#1a1b1c] border border-white/10 rounded-lg shadow-[0px_8px_32px_rgba(0,0,0,0.6)] py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                                <div 
+                                    className="px-2.5 py-1.5 text-[13px] text-zinc-300 hover:bg-white/5 flex items-center justify-between cursor-pointer group/item relative"
+                                    onMouseEnter={() => setShowDueDateSubmenu(true)}
+                                    onMouseLeave={() => setShowDueDateSubmenu(false)}
+                                >
+                                    <div className="flex items-center gap-2.5">
+                                        <div className="w-4 h-4 flex items-center justify-center">
+                                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-zinc-500 group-hover/item:text-zinc-300">
+                                                <rect x="2" y="3" width="12" height="11" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+                                                <path d="M5 1V3M11 1V3M2 7H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                                                <path d="M9 10.5H11M10 9.5V11.5" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
+                                            </svg>
+                                        </div>
+                                        <span className="font-medium">Set due date</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 text-zinc-600 group-hover/item:text-zinc-400">
+                                        <span className="text-[10px] font-semibold tracking-widest">⇧ D</span>
+                                        <ChevronRight size={12} strokeWidth={3} />
+                                    </div>
+
+                                    {/* Nested Submenu */}
+                                    {showDueDateSubmenu && (
+                                        <div 
+                                            className="absolute left-full bottom-[-4px] ml-1 w-[240px] bg-[#1a1b1c] border border-white/10 rounded-lg shadow-2xl overflow-hidden animate-in fade-in slide-in-from-left-2 duration-150 z-60"
+                                            onMouseEnter={() => setShowDueDateSubmenu(true)}
+                                            onMouseLeave={() => setShowDueDateSubmenu(false)}
+                                        >
+                                            <div className="bg-[#242526] px-3 py-1.5 border-b border-white/5">
+                                                <span className="text-[11px] text-zinc-500 font-medium tracking-tight">Try: 24h, 7 days, Feb 9</span>
+                                            </div>
+                                            <div className="py-1">
+                                                {[
+                                                    { label: "Custom...", sub: "", icon: "M5 2V1M11 2V1M2 6H14M3 2H13C13.5523 2 14 2.44772 14 3V13C14 13.5523 13.5523 14 13 14H3C2.44772 14 2 13.5523 2 13V3C2 2.44772 2.44772 2 3 2Z", action: () => setIsDatePickerOpen(true) },
+                                                    { label: "Tomorrow", sub: "Sun, 18 Jan", icon: "M8 4V8L11 11", action: () => { const d = new Date(); d.setDate(d.getDate() + 1); setDueDate(d); } },
+                                                    { label: "End of this week", sub: "Fri, 23 Jan", icon: "M5 2V1M11 2V1M2 6H14", action: () => { const d = new Date(); d.setDate(d.getDate() + (5 - d.getDay())); setDueDate(d); } },
+                                                    { label: "In one week", sub: "Sat, 24 Jan", icon: "M5 2V1M11 2V1M2 6H14", action: () => { const d = new Date(); d.setDate(d.getDate() + 7); setDueDate(d); } }
+                                                ].map((item, i) => (
+                                                    <div 
+                                                        key={i} 
+                                                        onClick={(e) => { e.stopPropagation(); item.action(); setShowDueDateSubmenu(false); setIsMoreOpen(false); }}
+                                                        className="px-3 py-1.5 flex items-center justify-between hover:bg-white/5 cursor-pointer group/sub"
+                                                    >
+                                                        <div className="flex items-center gap-2.5">
+                                                            <div className="w-4 h-4 flex items-center justify-center text-zinc-500 group-hover/sub:text-zinc-300">
+                                                                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path d={item.icon} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                                </svg>
+                                                            </div>
+                                                            <span className="text-[13px] text-zinc-300 group-hover/sub:text-zinc-100 font-medium">{item.label}</span>
+                                                        </div>
+                                                        <span className="text-[11px] text-zinc-500 font-medium">{item.sub}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="px-2.5 py-1.5 text-[13px] text-zinc-300 hover:bg-white/5 flex items-center gap-2.5 cursor-pointer group/item">
+                                    <div className="w-4 h-4 flex items-center justify-center text-zinc-500 group-hover/item:text-zinc-300">
+                                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M8 3V6M8 10V13M3 8H6M10 8H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                                            <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
+                                        </svg>
+                                    </div>
+                                    <span className="font-medium">Make recurring...</span>
+                                </div>
+                                <div className="px-2.5 py-1.5 text-[13px] text-zinc-300 hover:bg-white/5 flex items-center justify-between cursor-pointer group/item">
+                                    <div className="flex items-center gap-2.5">
+                                        <div className="w-4 h-4 flex items-center justify-center text-zinc-500 group-hover/item:text-zinc-300">
+                                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6 10L10 6M5 7L3 9C1.89543 10.1046 1.89543 11.8954 3 13C4.10457 14.1046 5.89543 14.1046 7 13L9 11M9 5L11 3C12.1046 1.89543 13.8954 1.89543 15 3C16.1046 4.10457 16.1046 5.89543 15 7L13 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                            </svg>
+                                        </div>
+                                        <span className="font-medium">Add link...</span>
+                                    </div>
+                                    <span className="text-[10px] text-zinc-600 font-semibold tracking-widest uppercase">Ctrl Alt L</span>
+                                </div>
+                                <div className="px-2.5 py-1.5 text-[13px] text-zinc-300 hover:bg-white/5 flex items-center justify-between cursor-pointer group/item border-t border-white/5 mt-1 pt-2">
+                                    <div className="flex items-center gap-2.5">
+                                        <div className="w-4 h-4 flex items-center justify-center text-zinc-500 group-hover/item:text-zinc-300">
+                                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M4 2V14M4 14H14M4 8H12M12 8L10 6M12 8L10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                            </svg>
+                                        </div>
+                                        <span className="font-medium">Add sub-issue</span>
+                                    </div>
+                                    <span className="text-[10px] text-zinc-600 font-semibold tracking-widest uppercase">Ctrl ⇧ O</span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
             </div>
 
             <button
