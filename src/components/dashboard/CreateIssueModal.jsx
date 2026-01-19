@@ -728,7 +728,7 @@ export default function CreateIssueModal({ isOpen, onClose, teamKey = "TES" }) {
                   className="flex items-center gap-2 px-2.5 py-1 bg-[#5e6ad2]/10 hover:bg-[#5e6ad2]/20 rounded-md border border-[#5e6ad2]/20 text-[13px] text-[#828be2] transition-colors font-medium active:scale-95"
                 >
                     <Sparkles size={14} />
-                    <span>Generated with AI</span>
+                    <span>Generate with AI</span>
                 </button>
             </div>
 
@@ -773,7 +773,7 @@ export default function CreateIssueModal({ isOpen, onClose, teamKey = "TES" }) {
                 <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 select-none shrink-0">
                     <div className="flex items-center gap-2 text-indigo-400">
                         <Sparkles size={16} />
-                        <span className="text-[13px] font-semibold">Generated with AI</span>
+                        <span className="text-[13px] font-semibold">Generate with AI</span>
                     </div>
                     <button 
                       onClick={() => setIsAiPopupOpen(false)}
