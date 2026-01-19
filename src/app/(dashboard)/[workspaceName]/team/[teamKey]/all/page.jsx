@@ -41,5 +41,5 @@ export default async function AllIssuesPage({ params }) {
     .eq("workspace_id", workspace.id)
     .eq("status", "todo");
 
-  return <IssuesBoard issues={issues || []} todoCount={todoCount || 0} workspaceId={workspace.id} />;
+  return <IssuesBoard issues={issues || []} todoCount={todoCount || 0} workspaceId={workspace.id} viewType="all" />;
 }

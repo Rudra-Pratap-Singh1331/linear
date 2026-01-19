@@ -484,7 +484,13 @@ export default function IssueDetailView({
          <div className="mt-12 pt-8 border-t border-white/5">
             <h3 className="text-sm font-medium text-zinc-400 mb-6">Activity</h3>
             
-            <IssueActivity issueId={issue.id} workspaceId={issue.workspace_id} currentUser={user} />
+            <IssueActivity 
+                issueId={issue.id} 
+                workspaceId={issue.workspace_id} 
+                currentUser={user} 
+                issueTitle={title} 
+                issueDescription={description} 
+            />
 
             {/* Comment Input */}
             <div className="mt-8 bg-[#141517] border border-white/5 rounded-lg p-3">

@@ -105,19 +105,24 @@ export default function IssuesBoard({ issues = [], todoCount = 0, viewType, work
   const canceledIssues = sortedIssues.filter(i => i.status === 'canceled');
   const duplicateIssues = sortedIssues.filter(i => i.status === 'duplicate');
 
-  const groups = [
-    { title: "Backlog", issues: backlogIssues, icon: CircleDashed, color: "text-zinc-600" },
-    { title: "Todo", issues: todoIssues, count: todoIssues.length, icon: Circle, color: "text-zinc-500" },
-    { title: "In Progress", issues: inProgressIssues, icon: InProgressIcon, color: "text-yellow-500" },
-    { title: "Done", issues: doneIssues, icon: CheckCircle2, color: "text-blue-500" },
-    { title: "Canceled", issues: canceledIssues, icon: XCircle, color: "text-zinc-600" },
-    { title: "Duplicate", issues: duplicateIssues, icon: AlertCircle, color: "text-zinc-600" },
+  const allGroups = [
+    { id: 'in_progress', title: "In Progress", issues: inProgressIssues, icon: InProgressIcon, color: "text-yellow-500" },
+    { id: 'todo', title: "Todo", issues: todoIssues, count: todoCount, icon: Circle, color: "text-zinc-500" },
+    { id: 'backlog', title: "Backlog", issues: backlogIssues, icon: CircleDashed, color: "text-zinc-600" },
+    { id: 'done', title: "Done", issues: doneIssues, icon: CheckCircle2, color: "text-blue-500" },
+    { id: 'canceled', title: "Canceled", issues: canceledIssues, icon: XCircle, color: "text-zinc-600" },
+    { id: 'duplicate', title: "Duplicate", issues: duplicateIssues, icon: AlertCircle, color: "text-zinc-600" },
   ];
 
-  // For backlog view, we only want to show the backlog group
-  const displayGroups = viewType === "backlog" 
-    ? groups.filter(g => g.title === "Backlog")
-    : groups;
+  let displayGroups = allGroups;
+
+  if (viewType === "active") {
+    displayGroups = allGroups.filter(g => ["in_progress", "todo"].includes(g.id));
+  } else if (viewType === "backlog") {
+    displayGroups = allGroups.filter(g => g.id === "backlog");
+  } else if (viewType === "all") {
+    displayGroups = allGroups;
+  }
 
   return (
     <div className="flex-1  bg-[#0b0c0d]">

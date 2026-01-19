@@ -1,13 +1,48 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { cn } from "@/lib/cn";
 import { Tag, Edit, AlertCircle, Calendar, CheckCircle2, Circle, Reply, Check, SmilePlus, MoreHorizontal } from "lucide-react";
 
-export default function IssueActivity({ issueId, workspaceId, currentUser }) {
+import { useShortcuts } from "@/lib/shortcuts";
+import { Sparkles, Send, Loader2, ArrowUp } from "lucide-react";
+
+export default function IssueActivity({ issueId, workspaceId, currentUser, issueTitle, issueDescription }) {
   const [activities, setActivities] = useState([]);
+  const [hoveredActivityId, setHoveredActivityId] = useState(null);
+  const [replyingToId, setReplyingToId] = useState(null);
+  const [replyText, setReplyText] = useState("");
+  const [isAiGenerating, setIsAiGenerating] = useState(false);
+  const [isPolishing, setIsPolishing] = useState(false);
+  
+  const replyRef = useRef(null);
   const supabase = createSupabaseBrowserClient();
+
+  const autoResize = () => {
+    if (replyRef.current) {
+        replyRef.current.style.height = 'auto';
+        replyRef.current.style.height = replyRef.current.scrollHeight + 'px';
+    }
+  };
+
+  useEffect(() => {
+    if (replyingToId) {
+        autoResize();
+    }
+  }, [replyText, replyingToId]);
+
+  // Handle R shortcut to reply to hovered comment
+  useShortcuts([
+    {
+      keys: "r",
+      callback: () => {
+        if (hoveredActivityId && hoveredActivityId.startsWith("c-")) {
+          setReplyingToId(hoveredActivityId);
+        }
+      }
+    }
+  ]);
 
   useEffect(() => {
     // 1. Fetch initial data (comments + events)
@@ -21,7 +56,7 @@ export default function IssueActivity({ issueId, workspaceId, currentUser }) {
 
             supabase
             .from("issue_events")
-            .select(`*`) // No join on user yet, we might need a public profile table or store email in event
+            .select(`*`)
             .eq("issue_id", issueId)
             .order("created_at", { ascending: true })
         ]);
@@ -88,6 +123,50 @@ export default function IssueActivity({ issueId, workspaceId, currentUser }) {
     return () => supabase.removeChannel(channel);
   }, [issueId, supabase, currentUser]);
 
+  const handlePostReply = async (activity) => {
+    if (!replyText.trim()) return;
+
+    const { error } = await supabase.from("issue_comments").insert({
+        issue_id: issueId,
+        workspace_id: workspaceId,
+        created_by: currentUser.id,
+        user_email: currentUser.email,
+        comment_text: replyText
+    });
+
+    if (!error) {
+        setReplyText("");
+        setReplyingToId(null);
+    }
+  };
+
+  const handleAiAction = async (type, activity) => {
+    if (type === "generate") setIsAiGenerating(true);
+    else setIsPolishing(true);
+
+    try {
+        const res = await fetch("/api/ai/comment-reply", {
+            method: "POST",
+            body: JSON.stringify({
+                type,
+                issueTitle,
+                issueDescription,
+                commentContent: activity.text,
+                currentDraft: replyText
+            })
+        });
+        const data = await res.json();
+        if (data.text) {
+            setReplyText(data.text);
+        }
+    } catch (err) {
+        console.error("AI action failed:", err);
+    } finally {
+        setIsAiGenerating(false);
+        setIsPolishing(false);
+    }
+  };
+
   const timeAgo = (dateStr) => {
       const date = new Date(dateStr);
       const now = new Date();
@@ -136,29 +215,36 @@ export default function IssueActivity({ issueId, workspaceId, currentUser }) {
 
   return (
     <div className="space-y-6">
-       {/* Explicit Creation Event if not present in DB events or fallback */}
-       {/* If we strictly rely on DB events, we might miss old issues without events. Mixing logic is tricky. 
-           We'll assume 'create' event is logged or we fallback to "Created issue" at the top if list is empty?
-           For now, let's just render the list. 
-       */}
-
        {activities.length === 0 && (
            <div className="text-zinc-600 italic text-xs">No activity yet</div>
        )}
 
        {activities.map(activity => (
-           <div key={activity.id} className="flex gap-3 group">
+           <div 
+             key={activity.id} 
+             className="flex gap-3 group"
+             onMouseEnter={() => setHoveredActivityId(activity.id)}
+             onMouseLeave={() => setHoveredActivityId(null)}
+           >
                {activity.type === 'comment' ? (
                    <>
                        <div className="w-6 h-6 rounded-full bg-green-600 flex items-center justify-center text-[10px] font-medium text-white uppercase shrink-0 mt-1">
                            {activity.user && activity.user.substring(0,2)}
                        </div>
                        <div className="flex-1 min-w-0">
-                           <div className="bg-[#141517] border border-white/5 rounded-md p-3 relative group/bubble">
+                           <div className="bg-[#141517] border border-white/5 rounded-md p-3 relative group/bubble hover:border-white/10 transition-colors">
                                 <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover/bubble:opacity-100 transition-opacity bg-[#141517] pl-2">
-                                    <button className="p-1 text-zinc-500 hover:text-zinc-300 rounded hover:bg-white/10 transition-colors">
-                                        <Reply size={14} />
-                                    </button>
+                                    <div className="relative group/reply-btn">
+                                        <button 
+                                          onClick={() => setReplyingToId(activity.id)}
+                                          className="p-1 text-zinc-500 hover:text-zinc-300 rounded hover:bg-white/10 transition-colors"
+                                        >
+                                            <Reply size={14} />
+                                        </button>
+                                        <div className="absolute bottom-full right-0 mb-2 whitespace-nowrap bg-zinc-800 text-[11px] text-zinc-300 px-2 py-1 rounded border border-white/10 opacity-0 group-hover/reply-btn:opacity-100 pointer-events-none transition-opacity shadow-xl flex items-center gap-2">
+                                            Reply to comment <span className="bg-zinc-700 px-1 rounded text-[10px] font-bold">R</span>
+                                        </div>
+                                    </div>
                                     <button className="p-1 text-zinc-500 hover:text-zinc-300 rounded hover:bg-white/10 transition-colors">
                                         <Check size={14} />
                                     </button>
@@ -177,14 +263,83 @@ export default function IssueActivity({ issueId, workspaceId, currentUser }) {
                                     {activity.text}
                                 </div>
                            </div>
+
+                           {/* Reply Box UI matching Image 2 */}
+                           {replyingToId === activity.id && (
+                             <div className="mt-3 ml-0 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                                <div className="bg-[#141517] border border-white/10 rounded-lg p-3 shadow-lg group focus-within:border-white/20 transition-colors">
+                                    <div className="flex items-start gap-3">
+                                        <div className="w-6 h-6 rounded-full bg-green-600 flex items-center justify-center text-[10px] font-medium text-white uppercase shrink-0 mt-0.5">
+                                            {currentUser?.email?.substring(0,2)}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <textarea 
+                                                ref={replyRef}
+                                                autoFocus
+                                                value={replyText}
+                                                onChange={(e) => {
+                                                    setReplyText(e.target.value);
+                                                    autoResize();
+                                                }}
+                                                placeholder="Leave a reply..."
+                                                className="w-full bg-transparent border-none focus:ring-0 p-0 text-[14px] text-zinc-200 placeholder:text-zinc-500 resize-none min-h-[40px] leading-relaxed overflow-hidden"
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                                        e.preventDefault();
+                                                        handlePostReply(activity);
+                                                    }
+                                                    if (e.key === 'Escape') {
+                                                        setReplyingToId(null);
+                                                        setReplyText("");
+                                                    }
+                                                }}
+                                            />
+                                            <div className="flex items-center justify-between mt-3 pt-2 border-t border-white/5">
+                                                <div className="flex items-center gap-2">
+                                                    <button 
+                                                      onClick={() => handleAiAction("generate", activity)}
+                                                      disabled={isAiGenerating || isPolishing}
+                                                      className="flex items-center gap-1.5 px-2.5 py-1.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 rounded text-[12px] font-medium transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                                                    >
+                                                        {isAiGenerating ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                                                        Reply with AI
+                                                    </button>
+                                                    <button 
+                                                      onClick={() => handleAiAction("polish", activity)}
+                                                      disabled={!replyText || isAiGenerating || isPolishing}
+                                                      className="flex items-center gap-1.5 px-2.5 py-1.5 hover:bg-white/5 text-zinc-500 hover:text-zinc-300 rounded text-[12px] font-medium transition-all disabled:opacity-30"
+                                                    >
+                                                        {isPolishing ? <Loader2 size={12} className="animate-spin" /> : <Edit size={12} />}
+                                                        Polish
+                                                    </button>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <button 
+                                                      onClick={() => setReplyingToId(null)}
+                                                      className="px-3 py-1.5 text-zinc-500 hover:text-zinc-300 text-[12px] font-medium rounded hover:bg-white/5"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                    <button 
+                                                      onClick={() => handlePostReply(activity)}
+                                                      className="w-8 h-8 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-md transition-colors"
+                                                    >
+                                                        <ArrowUp size={16} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                             </div>
+                           )}
                        </div>
                    </>
                ) : (
                    <>
                        <div className="w-6 h-6 flex items-center justify-center text-zinc-500 shrink-0 relative">
-                            {/* Connector Line Logic hard to do perfectly in map, simple icon for now */}
-                            <div className="w-px h-full bg-zinc-800 absolute top-[-12px] bottom-[-12px] -z-10 group-first:top-3 group-last:bottom-3 hidden"></div>
-                            {getEventIcon(activity.eventType)}
+                             <div className="w-px h-full bg-zinc-800 absolute top-[-12px] bottom-[-12px] -z-10 group-first:top-3 group-last:bottom-3 hidden"></div>
+                             {getEventIcon(activity.eventType)}
                        </div>
                        <div className="flex-1 min-w-0 flex items-center text-[13px] text-zinc-400">
                            <span className="font-medium text-zinc-300 mr-1">{activity.user}</span>
