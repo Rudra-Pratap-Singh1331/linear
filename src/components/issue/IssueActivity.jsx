@@ -366,7 +366,7 @@ export default function IssueActivity({ issueId, workspaceId, currentUser, issue
                                         <div className="flex-1 min-w-0">
                                             <textarea 
                                                 ref={replyRef}
-                                                autoFocus
+        
                                                 value={replyText}
                                                 onChange={(e) => {
                                                     setReplyText(e.target.value);
