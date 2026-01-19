@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Linear Clone – Trial Task ✅ (Next.js + Supabase + AI)
 
-## Getting Started
+A **Linear-inspired issue tracker** built as a trial task project with a clean minimalist UI, workspace-based routing, authentication, and AI-powered helpers (reply, polish, summarize).
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Tech Stack
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Framework:** Next.js (App Router)
+- **UI:** Tailwind CSS v4 (Minimal Linear-style design)
+- **Auth + Database:** Supabase
+- **AI:** Gemini (`@google/genai`)
+- **Icons:** Lucide + FontAwesome
+- **Utilities:** date-fns, clsx, tailwind-merge
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## ✨ Key Features
 
-## Learn More
+### ✅ Authentication + Workspace Flow
+- Sign up / login using **Supabase Auth**
+- Workspace creation page (first-time onboarding)
+- Workspace-based dynamic routing (Linear-style URLs)
 
-To learn more about Next.js, take a look at the following resources:
+### ✅ Linear-style Issue Detail Page
+- Clean and minimal Issue Details UI
+- Right-side properties panel (Status, Priority, Labels, etc.)
+- Activity section for comments + events
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### ✅ AI Features (Gemini)
+#### 1) ✨ AI Reply (Comment Reply Helper)
+- Generates a professional reply to a selected comment based on issue context
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+#### 2) ✨ Polish Comment
+- Polishes the user's draft comment into a professional tone
+- Returns only **one final version** (no suggestions/options)
 
-## Deploy on Vercel
+#### 3) ✨ Summarize Activity
+- Summarizes issue activity into simple user-centric bullet points
+- Outputs activity in a clean format (Linear-like)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🧩 App Routes
+
+### Pages
+- `/` – Home
+- `/login` – Login
+- `/signup` – Signup
+- `/create-workspace` – Create Workspace
+- `/:workspaceName/welcome` – Workspace welcome screen
+
+### Teams + Issues
+- `/:workspaceName/team/:teamKey/all`
+- `/:workspaceName/team/:teamKey/active`
+- `/:workspaceName/team/:teamKey/backlog`
+- `/:workspaceName/issue/:issueKey/:issueTitle`
+
+### API Routes (AI)
+- `/api/ai/generate-issue`
+- `/api/ai/comment-reply`
+- `/api/ai/summarize`
+- `/api/ai/list-models`
+
+---
+
+## 🔑 Environment Variables
+
+Create a `.env.local` file in the project root:
+
+```env
+# Gemini AI
+GEMINI_API_KEY=YOUR_GEMINI_API_KEY
+
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=YOUR_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
