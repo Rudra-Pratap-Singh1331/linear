@@ -173,7 +173,7 @@ export default function CreateIssueModal({ isOpen, onClose, teamKey = "TES" }) {
             4: "low"
           };
 
-          const { error } = await supabase
+          const { data: newIssue, error } = await supabase
               .from('issues')
               .insert([{
                   title,
@@ -184,11 +184,29 @@ export default function CreateIssueModal({ isOpen, onClose, teamKey = "TES" }) {
                   label: label,
                   workspace_id: workspace.id,
                   created_by: user.id
-              }]);
+              }])
+              .select('*')
+              .single();
 
           if (error) {
               console.error("Supabase error creating issue:", error);
               throw error;
+          }
+
+          // Create 'create' event in activity log
+          if (newIssue) {
+              await supabase.from('issue_events').insert([{
+                  issue_id: newIssue.id,
+                  workspace_id: workspace.id,
+                  actor_id: user.id,
+                  actor_email: user.email,
+                  event_type: 'create',
+                  details: {
+                      title: newIssue.title,
+                      status: newIssue.status,
+                      priority: newIssue.priority
+                  }
+              }]);
           }
           
           router.refresh();

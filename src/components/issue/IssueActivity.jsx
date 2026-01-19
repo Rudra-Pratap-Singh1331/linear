@@ -47,7 +47,7 @@ export default function IssueActivity({ issueId, workspaceId, currentUser, issue
   useEffect(() => {
     // 1. Fetch initial data (comments + events)
     const fetchActivities = async () => {
-        const [commentsResp, eventsResp] = await Promise.all([
+        const [commentsResp, eventsResp, issueResp] = await Promise.all([
             supabase
             .from("issue_comments")
             .select(`*`)
@@ -58,7 +58,13 @@ export default function IssueActivity({ issueId, workspaceId, currentUser, issue
             .from("issue_events")
             .select(`*`)
             .eq("issue_id", issueId)
-            .order("created_at", { ascending: true })
+            .order("created_at", { ascending: true }),
+
+            supabase
+            .from("issues")
+            .select(`created_at, created_by`)
+            .eq("id", issueId)
+            .single()
         ]);
 
         let combined = [];
@@ -84,6 +90,21 @@ export default function IssueActivity({ issueId, workspaceId, currentUser, issue
                 created_at: e.created_at,
                 raw: e
             })));
+        }
+
+        // Check if there's a 'create' event, if not, add virtual one
+        const hasCreateEvent = combined.some(a => a.eventType === 'create');
+        if (!hasCreateEvent && issueResp.data) {
+            // Need the creator's email/name. For now we use "User" or fetch it.
+            // But usually we want consistency.
+            combined.push({
+                type: "event",
+                id: "virtual-create",
+                user: "User", // Fallback, we'll try to get more info if needed
+                eventType: "create",
+                details: {},
+                created_at: issueResp.data.created_at
+            });
         }
 
         combined.sort((a,b) => new Date(a.created_at) - new Date(b.created_at));

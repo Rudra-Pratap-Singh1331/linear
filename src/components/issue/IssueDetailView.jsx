@@ -465,9 +465,9 @@ export default function IssueDetailView({
   };
 
   return (
-    <div className="flex h-full flex-col bg-[#0b0c0d] text-zinc-100 lg:flex-row">
+    <div className="flex h-full  flex-col bg-[#0b0c0d] text-zinc-100 lg:flex-row">
       {/* Center Main Content */}
-      <div className="flex-1 overflow-y-auto border-r border-white/5 p-8 mx-auto w-full lg:max-w-4xl">
+      <div className="flex-1 overflow-y-auto border-r border-white/5 p-8 mx-auto w-full lg:max-w-[1010px]">
          {/* Breadcrumb / Top Bar */}
          <div className="flex items-center gap-2 mb-6 text-sm text-zinc-500">
             <span className="flex items-center justify-center w-4 h-4 rounded bg-purple-500/20 text-purple-400 font-bold text-[9px]">
