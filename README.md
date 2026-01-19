@@ -75,3 +75,39 @@ GEMINI_API_KEY=YOUR_GEMINI_API_KEY
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=YOUR_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
+```
+## 🛠️ Setup & Run Locally
+
+```Install dependencies:
+
+npm install
+Run dev server:
+npm run dev
+```
+
+```Build for production:
+
+npm run build
+npm start
+```
+
+## 🌍 Deployment (Vercel)
+
+->Push code to GitHub
+->Import the repo in Vercel
+->Add the same env variables in:
+  `Vercel → Project → Settings → Environment Variables`
+
+## Deploy ✅
+
+# 📌 Notes
+
+The UI is designed to match Linear’s minimalist design language
+The AI helpers are added to improve productivity:
+          ->reply faster
+          ->polish messages
+          ->quickly understand issue activity
+
+## 👤 Author
+
+`Rudra Pratap Singh`
