@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { cn } from "@/lib/cn";
-import { Tag, Edit, AlertCircle, Calendar, CheckCircle2, Circle, Reply, Check, SmilePlus, MoreHorizontal } from "lucide-react";
+import { Tag, Edit, AlertCircle, Calendar, CheckCircle2, Circle, Reply, Check, SmilePlus, MoreHorizontal, X } from "lucide-react";
 
 import { useShortcuts } from "@/lib/shortcuts";
 import { Sparkles, Send, Loader2, ArrowUp } from "lucide-react";
@@ -213,8 +213,78 @@ export default function IssueActivity({ issueId, workspaceId, currentUser, issue
       }
   }
 
+  const [isSummarizing, setIsSummarizing] = useState(false);
+  const [summaryData, setSummaryData] = useState(null);
+  const [isSummaryDropdownOpen, setIsSummaryDropdownOpen] = useState(false);
+  const [summaryTimeframe, setSummaryTimeframe] = useState("");
+
+  const handleSummarize = async (timeframe) => {
+    setIsSummaryDropdownOpen(false);
+    setIsSummarizing(true);
+    setSummaryTimeframe(timeframe);
+
+    const now = new Date();
+    let filtered = activities;
+
+    if (timeframe === "24h") {
+      filtered = activities.filter(a => (now - new Date(a.created_at)) <= 24 * 60 * 60 * 1000);
+    } else if (timeframe === "week") {
+      filtered = activities.filter(a => (now - new Date(a.created_at)) <= 7 * 24 * 60 * 60 * 1000);
+    }
+
+    try {
+      const res = await fetch("/api/ai/summarize", {
+        method: "POST",
+        body: JSON.stringify({
+          activities: filtered,
+          timeframeTitle: timeframe === "24h" ? "Last 24 Hours" : timeframe === "week" ? "Past Week" : "Complete History"
+        })
+      });
+      const data = await res.json();
+      if (data.text) {
+        setSummaryData(data.text);
+      }
+    } catch (err) {
+      console.error("Summarization failed:", err);
+    } finally {
+      setIsSummarizing(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
+        <div className="flex items-center justify-between mb-6">
+            <h3 className="text-sm font-medium text-zinc-400">Activity</h3>
+            <div className="relative">
+                <button 
+                    onClick={() => setIsSummaryDropdownOpen(!isSummaryDropdownOpen)}
+                    disabled={isSummarizing || activities.length === 0}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded text-[12px] font-medium transition-colors disabled:opacity-50"
+                >
+                    {isSummarizing ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                    Summarize
+                </button>
+
+                {isSummaryDropdownOpen && (
+                    <div className="absolute top-full right-0 mt-2 w-48 bg-[#1a1b1c] border border-white/10 rounded-lg shadow-xl py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                        {[
+                            { id: "24h", label: "Last 24 hours" },
+                            { id: "week", label: "Past week" },
+                            { id: "all", label: "Complete history" }
+                        ].map((opt) => (
+                            <button
+                                key={opt.id}
+                                onClick={() => handleSummarize(opt.id)}
+                                className="w-full px-4 py-2 text-left text-[13px] text-zinc-300 hover:bg-white/5 hover:text-white transition-colors"
+                            >
+                                {opt.label}
+                            </button>
+                        ))}
+                    </div>
+                )}
+            </div>
+        </div>
+
        {activities.length === 0 && (
            <div className="text-zinc-600 italic text-xs">No activity yet</div>
        )}
@@ -350,6 +420,39 @@ export default function IssueActivity({ issueId, workspaceId, currentUser, issue
                )}
            </div>
        ))}
+
+       {/* Summary Modal */}
+       {summaryData && (
+           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-100 flex items-center justify-center p-4 animate-in fade-in duration-200">
+               <div className="bg-[#141517] border border-white/10 rounded-xl w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+                   <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+                       <h2 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
+                           <Sparkles size={16} className="text-indigo-400" />
+                           {summaryTimeframe === "24h" ? "Last 24 Hours Summary" : summaryTimeframe === "week" ? "Past Week Summary" : "Complete History Summary"}
+                       </h2>
+                       <button 
+                           onClick={() => setSummaryData(null)}
+                           className="text-zinc-500 hover:text-zinc-300 transition-colors"
+                       >
+                           <X size={18} />
+                       </button>
+                   </div>
+                   <div className="p-6">
+                        <div className="text-zinc-300 text-[14px] leading-relaxed whitespace-pre-wrap bg-white/5 p-4 rounded-lg border border-white/5 max-h-[400px] overflow-y-auto custom-scrollbar">
+                            {summaryData}
+                        </div>
+                   </div>
+                   <div className="px-6 py-4 border-t border-white/5 flex justify-end">
+                       <button 
+                           onClick={() => setSummaryData(null)}
+                           className="px-4 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-md text-[13px] font-medium transition-colors"
+                       >
+                           Close
+                       </button>
+                   </div>
+               </div>
+           </div>
+       )}
     </div>
   );
 }

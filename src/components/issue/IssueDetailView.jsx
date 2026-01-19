@@ -17,7 +17,10 @@ import {
   Calendar,
   Plus,
   ChevronRight,
-  X
+  X,
+  Sparkles,
+  Edit,
+  Loader2
 } from "lucide-react";
 
 import StatusDropdown, { InProgressIcon, DoneIcon } from "@/components/dashboard/StatusDropdown";
@@ -107,6 +110,7 @@ export default function IssueDetailView({
   const [isLabelsDropdownOpen, setIsLabelsDropdownOpen] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isPolishing, setIsPolishing] = useState(false);
   
   // Due Date State
   const [dueDate, setDueDate] = useState(initialIssue.due_date ? new Date(initialIssue.due_date) : null);
@@ -352,6 +356,30 @@ export default function IssueDetailView({
       }
   };
 
+  const handlePolishComment = async () => {
+    if (!commentText.trim() || isPolishing) return;
+    setIsPolishing(true);
+    try {
+      const res = await fetch("/api/ai/comment-reply", {
+        method: "POST",
+        body: JSON.stringify({
+          type: "polish",
+          issueTitle: title,
+          issueDescription: description,
+          currentDraft: commentText
+        })
+      });
+      const data = await res.json();
+      if (data.text) {
+        setCommentText(data.text);
+      }
+    } catch (err) {
+      console.error("Polish failed:", err);
+    } finally {
+      setIsPolishing(false);
+    }
+  };
+
   useEffect(() => {
       const fetchLabels = async () => {
           const { data } = await supabase
@@ -482,8 +510,6 @@ export default function IssueDetailView({
 
          {/* Activity & Comments */}
          <div className="mt-12 pt-8 border-t border-white/5">
-            <h3 className="text-sm font-medium text-zinc-400 mb-6">Activity</h3>
-            
             <IssueActivity 
                 issueId={issue.id} 
                 workspaceId={issue.workspace_id} 
@@ -507,7 +533,17 @@ export default function IssueDetailView({
                     placeholder="Leave a comment..."
                 />
                 <div className="flex justify-between items-center mt-2">
-                    <Paperclip size={14} className="text-zinc-500 cursor-pointer hover:text-zinc-300" />
+                    <div className="flex items-center gap-3">
+                        <Paperclip size={14} className="text-zinc-500 cursor-pointer hover:text-zinc-300" />
+                        <button 
+                            onClick={handlePolishComment}
+                            disabled={!commentText || isPolishing}
+                            className="flex items-center gap-1.5 px-2 py-1 hover:bg-white/5 text-zinc-500 hover:text-zinc-300 rounded text-[12px] font-medium transition-all disabled:opacity-30"
+                        >
+                            {isPolishing ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                            Polish
+                        </button>
+                    </div>
                     <button 
                         onClick={handlePostComment}
                         className="px-3 py-1 bg-white/5 hover:bg-white/10 rounded text-[12px] font-medium text-zinc-300 transition-colors"
