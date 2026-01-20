@@ -27,20 +27,29 @@ A **Linear-inspired issue tracker** built as a trial task project with a clean m
 - Enabled users to trigger key workspace actions efficiently without mouse interaction
 - Improved overall workflow speed and usability with Linear-style shortcuts
 
+### ✅ Issue creation flow
+- Create issue in the same way like linear
+- Select status, priority, labels, due date and many more.
+
 ### ✅ Linear-style Issue Detail Page
 - Clean and minimal Issue Details UI
 - Right-side properties panel (Status, Priority, Labels, etc.)
 - Activity section for comments + events
 
 ### ✅ AI Features (Gemini)
-#### 1) ✨ AI Reply (Comment Reply Helper)
+
+#### 1) ✨ Generate Issue thorugh Natural language
+- Generates appropriate and accurate title and description for the issue described in natural language by the user.
+- Set the priority, status, labels automatically be analyzing the importance of current issue be comparing it with the other exisiting ones.
+
+#### 2) ✨ AI Reply (Comment Reply Helper)
 - Generates a professional reply to a selected comment based on issue context
 
-#### 2) ✨ Polish Comment
+#### 3) ✨ Polish Comment
 - Polishes the user's draft comment into a professional tone
 - Returns only **one final version** (no suggestions/options)
 
-#### 3) ✨ Summarize Activity
+#### 4) ✨ Summarize Activity
 - Summarizes issue activity into simple user-centric bullet points
 - Outputs activity in a clean format (Linear-like)
 
