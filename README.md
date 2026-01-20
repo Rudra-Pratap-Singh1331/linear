@@ -32,11 +32,6 @@ A **Linear-inspired issue tracker** built as a trial task project with a clean m
 - Right-side properties panel (Status, Priority, Labels, etc.)
 - Activity section for comments + events
 
-### ✅ Linear-style Issue Detail Page
-- Clean and minimal Issue Details UI
-- Right-side properties panel (Status, Priority, Labels, etc.)
-- Activity section for comments + events
-
 ### ✅ AI Features (Gemini)
 #### 1) ✨ AI Reply (Comment Reply Helper)
 - Generates a professional reply to a selected comment based on issue context
