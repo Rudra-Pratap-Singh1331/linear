@@ -73,7 +73,6 @@ A **Linear-inspired issue tracker** built as a trial task project with a clean m
 - `/api/ai/generate-issue`
 - `/api/ai/comment-reply`
 - `/api/ai/summarize`
-- `/api/ai/list-models`
 
 ---
 
